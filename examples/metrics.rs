@@ -12,11 +12,11 @@ fn main() -> Result<()> {
     let metrics = Metrics::new();
 
     for idx in 0..N {
-        task_worker(idx, metrics.clone());
+        task_worker(idx, metrics.clone())?;
     }
 
     for _ in 0..M {
-        request_worker(metrics.clone());
+        request_worker(metrics.clone())?;
     }
 
     loop {
@@ -25,20 +25,31 @@ fn main() -> Result<()> {
     }
 }
 
-fn task_worker(idx: usize, metrics: Metrics) {
-    thread::spawn(move || loop {
-        let mut rng = rand::thread_rng();
-        thread::sleep(std::time::Duration::from_millis(rng.gen_range(100..5000)));
-        metrics.incr(format!("call.thread.worker.{}", idx)).unwrap();
+fn task_worker(idx: usize, metrics: Metrics) -> Result<()> {
+    thread::spawn(move || {
+        loop {
+            let mut rng = rand::thread_rng();
+            thread::sleep(std::time::Duration::from_millis(rng.gen_range(100..5000)));
+            metrics.incr(format!("call.thread.worker.{}", idx))?;
+        }
+        #[allow(unreachable_code)]
+        Ok::<_, anyhow::Error>(())
     });
+    Ok(())
 }
 
-fn request_worker(metrics: Metrics) {
-    thread::spawn(move || loop {
-        let mut rng = rand::thread_rng();
-        thread::sleep(std::time::Duration::from_millis(rng.gen_range(50..800)));
+fn request_worker(metrics: Metrics) -> Result<()> {
+    thread::spawn(move || {
+        loop {
+            let mut rng = rand::thread_rng();
+            thread::sleep(std::time::Duration::from_millis(rng.gen_range(50..800)));
 
-        let page = rng.gen_range(1..256);
-        metrics.incr(format!("req.page.{}", page)).unwrap();
+            let page = rng.gen_range(1..256);
+            metrics.incr(format!("req.page.{}", page))?;
+        }
+        #[allow(unreachable_code)]
+        Ok::<_, anyhow::Error>(())
     });
+
+    Ok(())
 }
