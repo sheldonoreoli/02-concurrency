@@ -5,16 +5,16 @@ use anyhow::Result;
 use dashmap::DashMap;
 
 #[derive(Debug, Clone)]
-pub struct Metrics {
+pub struct CmapMetrics {
     data: Arc<DashMap<String, i64>>,
 }
 
 // metrics has a new method that creates a new instance of Metrics
 // with an empty HashMap
 // other methods have incr, decr,  and snapshot methods
-impl Metrics {
-    pub fn new() -> Metrics {
-        Metrics {
+impl CmapMetrics {
+    pub fn new() -> CmapMetrics {
+        CmapMetrics {
             data: Arc::new(DashMap::new()),
         }
     }
@@ -32,7 +32,7 @@ impl Metrics {
     }
 }
 
-impl fmt::Display for Metrics {
+impl fmt::Display for CmapMetrics {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for entry in self.data.iter() {
             writeln!(f, "{}: {}", entry.key(), entry.value())?;
